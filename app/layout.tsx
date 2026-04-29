@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Bhoomika Portfolio",
-  description: "Bhoomika Gupta | Data Science Portfolio",
+  title: "Bhoomika Gupta — Research & Portfolio",
+  description: "Bhoomika Gupta | Data Science Researcher & Builder",
 };
 
 export default function RootLayout({
@@ -25,9 +25,8 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        {/* Add any extra fonts or links here */}
         <link
-          href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&family=Roboto+Mono:wght@400;500&display=swap"
+          href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300..700;1,9..40,300..700&family=JetBrains+Mono:wght@400;500&display=swap"
           rel="stylesheet"
         />
       </head>

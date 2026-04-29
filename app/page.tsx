@@ -1,561 +1,647 @@
 "use client";
 import { Typewriter } from "react-simple-typewriter";
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState } from "react";
 import Projects from "./Projects";
 
-export default function Home() {
-  const scrollToSection = (id: string) => {
-    const section = document.getElementById(id);
-    section?.scrollIntoView({ behavior: "smooth" });
+/* ── Status badge ── */
+function StatusBadge({ status }: { status: "active" | "planned" | "posters" | "incoming" }) {
+  const map = {
+    active: { bg: "var(--status-active-bg)", color: "var(--status-active)", label: "Active" },
+    planned: { bg: "var(--status-planned-bg)", color: "var(--status-planned)", label: "Planned" },
+    posters: { bg: "#eee8ff", color: "#5b21b6", label: "2 Posters" },
+    incoming: { bg: "#e0f2fe", color: "#0369a1", label: "Incoming" },
   };
-
-  // --- Hydration-safe floating bubbles: generate only on client ---
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
-
-  const bubbles = useMemo(() => {
-    if (!mounted) return [];
-    return Array.from({ length: 30 }).map(() => ({
-      w: Math.random() * 6 + 4,
-      h: Math.random() * 6 + 4,
-      top: Math.random() * 100,
-      left: Math.random() * 100,
-      dur: Math.random() * 10 + 5,
-    }));
-  }, [mounted]);
-
-  // --- Fade-in observer as you had ---
-  useEffect(() => {
-    const sections = document.querySelectorAll("section");
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add("fade-in");
-          }
-        });
-      },
-      { threshold: 0.2 }
-    );
-    sections.forEach((section) => observer.observe(section));
-    return () => observer.disconnect();
-  }, []);
-
+  const s = map[status];
   return (
-    <main
+    <span
       style={{
-        fontFamily: "Inter, sans-serif",
-        scrollBehavior: "smooth",
-        background: "linear-gradient(135deg, #0f172a, #1e293b, #111827)",
-        color: "#f8fafc",
+        fontSize: ".75rem",
+        fontWeight: 600,
+        padding: "2px 10px",
+        borderRadius: 999,
+        background: s.bg,
+        color: s.color,
+        letterSpacing: ".02em",
       }}
     >
+      {s.label}
+    </span>
+  );
+}
+
+/* ── Tag chip ── */
+function Tag({ children }: { children: string }) {
+  return (
+    <span
+      style={{
+        fontSize: ".78rem",
+        padding: "3px 10px",
+        borderRadius: 999,
+        background: "var(--tag-bg)",
+        color: "var(--tag-text)",
+        fontWeight: 500,
+      }}
+    >
+      {children}
+    </span>
+  );
+}
+
+/* ══════════════════════════════════════════════ */
+export default function Home() {
+  const scrollTo = (id: string) =>
+    document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
+
+  useEffect(() => {
+    const obs = new IntersectionObserver(
+      (entries) =>
+        entries.forEach((e) => e.isIntersecting && e.target.classList.add("visible")),
+      { threshold: 0.12 }
+    );
+    document.querySelectorAll(".reveal").forEach((el) => obs.observe(el));
+    return () => obs.disconnect();
+  }, []);
+
+  const [scrolled, setScrolled] = useState(false);
+  useEffect(() => {
+    const h = () => setScrolled(window.scrollY > 40);
+    window.addEventListener("scroll", h, { passive: true });
+    return () => window.removeEventListener("scroll", h);
+  }, []);
+
+  const [lightbox, setLightbox] = useState<string | null>(null);
+
+  const NAV = ["home", "about", "research", "experience", "projects", "honors", "contact"];
+
+  return (
+    <main style={{ fontFamily: "'DM Sans', sans-serif", color: "var(--foreground)" }}>
       <style>{`
-        .fade-in {
-          opacity: 1;
-          transform: translateY(0);
-          transition: all 1s ease;
-        }
-        section {
-          opacity: 0;
-          transform: translateY(20px);
-        }
-        nav button:hover {
-          color: #38bdf8;
-          text-shadow: 0 0 10px #38bdf8;
-        }
-        @keyframes float {
-          0% { transform: translateY(0) }
-          50% { transform: translateY(-20px) }
-          100% { transform: translateY(0) }
+        .reveal { opacity: 0; transform: translateY(24px); transition: opacity .7s ease, transform .7s ease; }
+        .visible { opacity: 1; transform: translateY(0); }
+        .nav-link { background: none; border: none; font-size: .9rem; cursor: pointer;
+          text-transform: capitalize; color: var(--muted); font-weight: 600; transition: .2s;
+          padding: 4px 0; position: relative; }
+        .nav-link:hover { color: var(--accent); }
+        .nav-link::after { content: ''; position: absolute; bottom: -2px; left: 0; width: 0;
+          height: 2px; background: var(--accent); transition: width .25s; }
+        .nav-link:hover::after { width: 100%; }
+        a.inline-link { color: var(--link); text-decoration: none; font-weight: 600;
+          border-bottom: 1.5px solid transparent; transition: border-color .2s; }
+        a.inline-link:hover { border-bottom-color: var(--link); }
+        .card { background: var(--card-bg); border: 1px solid var(--card-border);
+          border-radius: 12px; padding: 1.5rem 1.75rem; transition: box-shadow .25s, transform .25s; }
+        .card:hover { box-shadow: 0 8px 30px rgba(0,0,0,.06); transform: translateY(-2px); }
+        .poster-thumb { width: 110px; border-radius: 6px; cursor: pointer; transition: transform .25s; border: 1px solid var(--card-border); }
+        .poster-thumb:hover { transform: scale(1.08); }
+        .overlay { position: fixed; inset: 0; background: rgba(0,0,0,.6); z-index: 100;
+          display: flex; align-items: center; justify-content: center; cursor: pointer;
+          animation: fadeIn .2s ease; }
+        @keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }
+        .section-heading { font-family: 'DM Serif Display', serif; font-size: 2.2rem;
+          color: var(--heading); margin-bottom: 0.5rem; font-weight: 400; }
+        .section-rule { width: 48px; height: 3px; background: var(--accent); border: none;
+          margin: 0 0 2.5rem 0; border-radius: 2px; }
+        @media (max-width: 700px) {
+          .section-heading { font-size: 1.7rem; }
+          .research-grid { grid-template-columns: 1fr !important; }
         }
       `}</style>
 
-      {/* 🌸 Navbar */}
+      {/* ── Lightbox ── */}
+      {lightbox && (
+        <div className="overlay" onClick={() => setLightbox(null)}>
+          <img
+            src={lightbox}
+            alt="Poster"
+            style={{ maxWidth: "90vw", maxHeight: "90vh", borderRadius: 8, boxShadow: "0 20px 60px rgba(0,0,0,.3)" }}
+            onClick={(e) => e.stopPropagation()}
+          />
+        </div>
+      )}
+
+      {/* ── Navbar ── */}
       <nav
         style={{
           position: "fixed",
           top: 0,
           width: "100%",
-          background: "rgba(15, 23, 42, 0.8)",
-          backdropFilter: "blur(8px)",
-          boxShadow: "0 2px 15px rgba(0,0,0,0.3)",
-          zIndex: 10,
+          background: "var(--nav-bg)",
+          backdropFilter: "blur(12px)",
+          zIndex: 50,
           display: "flex",
           justifyContent: "center",
           gap: "2rem",
-          padding: "0.8rem 0",
+          padding: scrolled ? ".6rem 0" : ".9rem 0",
+          borderBottom: scrolled ? "1px solid var(--card-border)" : "1px solid transparent",
+          transition: "padding .3s, border-color .3s",
         }}
       >
-        {["home", "about", "work", "projects", "leadership", "contact"].map((item) => (
-          <button
-            key={item}
-            onClick={() => scrollToSection(item)}
-            style={{
-              background: "none",
-              border: "none",
-              fontSize: "1rem",
-              cursor: "pointer",
-              textTransform: "capitalize",
-              color: "#f1f5f9",
-              fontWeight: 700,
-              transition: "0.3s",
-            }}
-          >
+        {NAV.map((item) => (
+          <button key={item} className="nav-link" onClick={() => scrollTo(item)}>
             {item}
           </button>
         ))}
       </nav>
 
-      {/* 🏠 Hero Section */}
+      {/* ── Hero ── */}
       <section
         id="home"
+        className="reveal"
         style={{
-          position: "relative",
-          minHeight: "80vh",
+          minHeight: "85vh",
           display: "flex",
           flexDirection: "column",
           justifyContent: "center",
           alignItems: "center",
           textAlign: "center",
-          padding: "0 1rem",
-          overflow: "hidden",
+          padding: "6rem 1.5rem 3rem",
         }}
       >
-        <div
+        <p
           style={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            width: "100%",
-            height: "100%",
-            pointerEvents: "none",
-            overflow: "hidden",
-            zIndex: 0,
+            fontFamily: "'JetBrains Mono', monospace",
+            fontSize: ".85rem",
+            color: "var(--muted)",
+            letterSpacing: ".08em",
+            textTransform: "uppercase",
+            marginBottom: ".75rem",
           }}
         >
-          {bubbles.map((b, i) => (
-            <div
-              key={i}
-              style={{
-                position: "absolute",
-                width: `${b.w}px`,
-                height: `${b.h}px`,
-                background: "rgba(56, 189, 248, 0.7)",
-                borderRadius: "50%",
-                top: `${b.top}%`,
-                left: `${b.left}%`,
-                animation: `float ${b.dur}s ease-in-out infinite`,
-              }}
-            />
-          ))}
-        </div>
-
+          Data Science · LLM Systems · Model Evaluation · ML for Health
+        </p>
         <h1
           style={{
-            fontSize: "4rem",
-            marginBottom: "0.5rem",
-            color: "#38bdf8",
-            fontFamily: "'Poppins', sans-serif",
-            fontWeight: "bold",
-            zIndex: 1,
+            fontFamily: "'DM Serif Display', serif",
+            fontSize: "clamp(2.8rem, 6vw, 4.5rem)",
+            color: "var(--heading)",
+            fontWeight: 400,
+            lineHeight: 1.1,
+            marginBottom: "1rem",
           }}
         >
-          Hi, I’m Bhoomika 👋
+          Bhoomika Gupta
         </h1>
-        <h2
+        <div
           style={{
-            fontSize: "1.8rem",
-            maxWidth: "650px",
-            lineHeight: "2rem",
-            color: "#a5b4fc",
-            fontFamily: "'Roboto Mono', monospace",
-            zIndex: 1,
+            fontSize: "1.2rem",
+            color: "var(--accent)",
+            fontFamily: "'JetBrains Mono', monospace",
+            fontWeight: 500,
+            height: "1.8rem",
           }}
         >
           <Typewriter
             words={[
-              "Aspiring to build ethical and impactful technology.",
-              "Passionate about AI & data.",
-              "Data Science Major💻",
+              "LLM evaluation & safety",
+              "Neuro-symbolic reasoning",
+              "Multi-agent systems",
+              "ML on clinical & biological data",
             ]}
-            loop={true}
+            loop
             cursor
-            cursorStyle="|"
-            typeSpeed={80}
-            deleteSpeed={50}
-            delaySpeed={1200}
+            cursorStyle="_"
+            typeSpeed={60}
+            deleteSpeed={40}
+            delaySpeed={1800}
           />
-        </h2>
+        </div>
       </section>
 
-      {/* 💫 About Section */}
+      {/* ── About ── */}
       <section
         id="about"
+        className="reveal"
         style={{
-          minHeight: "70vh",
+          padding: "5rem 1.5rem",
           display: "flex",
           flexDirection: "column",
-          justifyContent: "center",
           alignItems: "center",
-          padding: "3rem 1rem",
-          borderTop: "1px solid #1e293b",
+          background: "var(--section-alt)",
         }}
       >
-        <h2
-          style={{
-            fontSize: "2.5rem",
-            marginBottom: "1rem",
-            color: "#93c5fd",
-            fontWeight: "bold",
-          }}
-        >
-          About Me
-        </h2>
-        <p
-          style={{
-            maxWidth: "700px",
-            textAlign: "center",
-            fontSize: "1.2rem",
-            lineHeight: "2rem",
-          }}
-        >
-          Data Science student at <strong>San José State University</strong> with strong foundations in Python, Java, and machine learning.
-          Experienced in applied research and projects in AI, data analysis, and backend development.
-          Passionate about leveraging technology to solve real world problems in healthcare, policy, and social impact domains.
-        </p>
-      </section>
-
-      {/* 💼 Work Experience Section */}
-      <section
-        id="work"
-        style={{
-          minHeight: "60vh",
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "center",
-          alignItems: "center",
-          padding: "3rem 1rem",
-          borderTop: "1px solid #1e293b",
-        }}
-      >
-        <h2
-          style={{
-            fontSize: "2.5rem",
-            marginBottom: "2rem",
-            color: "#7dd3fc",
-            fontWeight: "bold",
-          }}
-        >
-          Work Experience
-        </h2>
-
-        {[
-          {
-            icon: "💡",
-            company: "San José State University",
-            link: "https://www.sjsu.edu/",
-            role: "AI/ML Intern",
-            title:
-              "AI-Driven ESA Compliance Agent Framework (in collaboration with EPA) | May 2025 – Present",
-            description:
-              "Built an AI system that automates environmental compliance checks by integrating soil data from 200+ counties. Used tools like LangChain and CrewAI to streamline research workflows and support smarter, data-driven decision-making for policy teams.",
-            skills:
-              "Data integration • AI agents • Automation • MongoDB • Environmental data • SQL",
-          },
-          {
-            icon: "🧭",
-            company: "Paragon Policy Fellowship",
-            link: "https://www.paragoninstitute.org/",
-            role: "Fellow",
-            title: "Jan 2025 – Sep 2025",
-            description:
-              "Researched how cities can responsibly adopt AI to improve public services. Created data-driven policy briefs focused on AI governance, fairness, and accountability, and presented actionable recommendations to civic leaders.",
-            skills:
-              "Policy research • Data ethics • Communication • Responsible AI • Civic innovation",
-          },
-          {
-            icon: "🧬",
-            company: "San José State University",
-            link: "https://www.sjsu.edu/",
-            role: "Research Intern",
-            title:
-              "Detection of Coxsackie B2 Virus in Water Using Riboswitches | Oct 2024 – Sep 2025",
-            description:
-              "Worked on developing ML-powered biosensors to detect viruses in water samples. Designed data pipelines and helped build models that achieved strong accuracy, showing how AI can advance public health monitoring.",
-            publication: {
-              images: ["/images/publication1.png", "/images/publication2.png"],
-            },
-            skills:
-              "Machine learning • Data preprocessing • Research analysis • Scientific communication",
-          },
-          {
-            icon: "🤖",
-            company: "AI4ALL",
-            link: "https://ai-4-all.org/",
-            role: "Fellow",
-            title: "AI4ALL Program",
-            description: "",
-            skills: "",
-          },
-        ].map((exp, i) => (
-          <div
-            key={i}
-            style={{
-              display: "flex",
-              alignItems: "flex-start",
-              gap: "1rem",
-              marginBottom: "1.5rem",
-              background: "rgba(30,41,59,0.5)",
-              padding: "1.5rem 2rem",
-              borderRadius: "10px",
-              width: "100%",
-              maxWidth: "750px",
-              boxShadow: "0 0 20px rgba(168,85,247,0.25)",
-              transition: "transform 0.3s ease, box-shadow 0.3s ease",
-            }}
-            onMouseEnter={(e) =>
-              (e.currentTarget.style.boxShadow =
-                "0 0 25px rgba(168,85,247,0.45)")
-            }
-            onMouseLeave={(e) =>
-              (e.currentTarget.style.boxShadow =
-                "0 0 20px rgba(168,85,247,0.25)")
-            }
-          >
-            <div
-              style={{
-                width: "50px",
-                height: "50px",
-                background: "#7dd3fc",
-                borderRadius: "50%",
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                fontWeight: "bold",
-                color: "#0f172a",
-                fontSize: "1.5rem",
-                flexShrink: 0,
-              }}
-            >
-              {exp.icon}
-            </div>
-
-            <div style={{ color: "#e2e8f0" }}>
-              <a
-                href={exp.link}
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{
-                  textDecoration: "none",
-                  color: "#fafafaff",
-                  fontSize: "1.2rem",
-                  fontWeight: "bold",
-                }}
-              >
-                {exp.company}
-              </a>{" "}
-              – {exp.role}
-              <br />
-              <p
-                style={{ margin: "0.5rem 0", fontWeight: "bold", color: "#93c5fd" }}
-              >
-                {exp.title}
-              </p>
-              {exp.description && (
-                <p style={{ margin: "0.25rem 0", color: "#e2e8f0" }}>
-                  {exp.description}
-                </p>
-              )}
-
-              {/* Publication images (only for research intern) */}
-              {exp.publication && (
-                <div
-                  style={{
-                    display: "flex",
-                    gap: "1rem",
-                    marginTop: "1rem",
-                    flexWrap: "wrap",
-                  }}
-                >
-                  {exp.publication.images.map((src, idx) => (
-                    <img
-                      key={idx}
-                      src={src}
-                      alt="Publication poster"
-                      style={{
-                        width: "120px",
-                        height: "auto",
-                        borderRadius: "8px",
-                        cursor: "pointer",
-                        transition: "transform 0.3s ease",
-                      }}
-                      onMouseEnter={(e) =>
-                        (e.currentTarget.style.transform = "scale(1.3)")
-                      }
-                      onMouseLeave={(e) =>
-                        (e.currentTarget.style.transform = "scale(1)")
-                      }
-                    />
-                  ))}
-                </div>
-              )}
-
-              {exp.skills && (
-                <p
-                  style={{
-                    marginTop: "0.75rem",
-                    fontStyle: "italic",
-                    color: "#facc15",
-                    fontWeight: "bold",
-                  }}
-                >
-                  Key Skills: {exp.skills}
-                </p>
-              )}
+        <h2 className="section-heading">About</h2>
+        <hr className="section-rule" />
+        <div style={{ maxWidth: 720, lineHeight: 1.85, fontSize: "1.05rem", color: "var(--foreground)" }}>
+          <p style={{ marginBottom: "1.25rem" }}>
+            Hi, I&apos;m Bhoomika, a Data Science undergraduate at San Jos&eacute; State University with a strong
+            interest in machine learning systems, large language models, and structured reasoning. I focus on
+            building and evaluating models on real-world data, with an emphasis on how these systems behave and
+            how to make them more reliable. My goal is to apply these skills to develop systems that are both
+            technically strong and useful in practice.
+          </p>
+          <div>
+            <p style={{ fontWeight: 700, color: "var(--heading)", marginBottom: ".5rem", fontSize: ".95rem", letterSpacing: ".03em", textTransform: "uppercase" }}>
+              Research Interests
+            </p>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: ".5rem" }}>
+              {[
+                "LLM Systems & Evaluation",
+                "Neuro-Symbolic Methods",
+                "Multi-Agent Systems",
+                "ML for Health & Biological Systems",
+              ].map((t) => (
+                <Tag key={t}>{t}</Tag>
+              ))}
             </div>
           </div>
-        ))}
+        </div>
       </section>
 
-      <Projects />
-
-      {/* 🌟 Leadership & Activities */}
+      {/* ── Research ── */}
       <section
-        id="leadership"
+        id="research"
+        className="reveal"
         style={{
-          minHeight: "70vh",
+          padding: "5rem 1.5rem",
           display: "flex",
           flexDirection: "column",
-          justifyContent: "center",
           alignItems: "center",
-          padding: "4rem 1rem",
-          borderTop: "1px solid #1e293b",
         }}
       >
-        <h2
-          style={{
-            fontSize: "2.5rem",
-            color: "#a5b4fc",
-            fontWeight: "bold",
-            marginBottom: "2rem",
-          }}
-        >
-          Leadership & Activities
-        </h2>
+        <h2 className="section-heading">Research</h2>
+        <hr className="section-rule" />
 
         <div
+          className="research-grid"
           style={{
-            display: "flex",
-            flexWrap: "wrap",
-            justifyContent: "center",
-            gap: "2rem",
-            maxWidth: "900px",
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(340px, 1fr))",
+            gap: "1.25rem",
+            width: "100%",
+            maxWidth: 900,
           }}
         >
+          {/* 1 — Neuro-Symbolic */}
+          <div className="card">
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: ".5rem" }}>
+              <span style={{ fontSize: ".8rem", color: "var(--muted)", fontFamily: "'JetBrains Mono', monospace" }}>
+                UCSC · AIEA Lab
+              </span>
+              <StatusBadge status="active" />
+            </div>
+            <h3 style={{ fontFamily: "'DM Serif Display', serif", fontSize: "1.2rem", color: "var(--heading)", marginBottom: ".5rem" }}>
+              Neuro-Symbolic AI
+            </h3>
+            <p style={{ fontSize: ".92rem", color: "var(--muted)", lineHeight: 1.7 }}>
+              Developing systems that integrate large language models with symbolic structures to enable
+              structured, verifiable reasoning. Focusing on architectures that combine neural language
+              understanding with formal logic for robust inference.
+            </p>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: ".4rem", marginTop: ".75rem" }}>
+              {["LLMs", "Symbolic Systems", "Reasoning"].map((t) => <Tag key={t}>{t}</Tag>)}
+            </div>
+          </div>
+
+          {/* 2 — OpenGuard */}
+          <div className="card">
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: ".5rem" }}>
+              <span style={{ fontSize: ".8rem", color: "var(--muted)", fontFamily: "'JetBrains Mono', monospace" }}>
+                SJSU
+              </span>
+              <StatusBadge status="active" />
+            </div>
+            <h3 style={{ fontFamily: "'DM Serif Display', serif", fontSize: "1.2rem", color: "var(--heading)", marginBottom: ".5rem" }}>
+              OpenGuard: Policy Driven LLM Evaluation
+            </h3>
+            <p style={{ fontSize: ".92rem", color: "var(--muted)", lineHeight: 1.7 }}>
+              Designing evaluation workflows for LLM moderation. Building structured test suites
+              across attack types and analyzing failure modes including false positives, partial leaks, and
+              degradation under constraint across open-source guardrail models.
+            </p>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: ".4rem", marginTop: ".75rem" }}>
+              {["AI Safety", "Evaluation", "Guardrails"].map((t) => <Tag key={t}>{t}</Tag>)}
+            </div>
+          </div>
+
+          {/* 3 — RNA Biosensors */}
+          <div className="card">
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: ".5rem" }}>
+              <span style={{ fontSize: ".8rem", color: "var(--muted)", fontFamily: "'JetBrains Mono', monospace" }}>
+                SJSU
+              </span>
+              <div style={{ display: "flex", gap: ".4rem" }}>
+                <StatusBadge status="active" />
+                <StatusBadge status="posters" />
+              </div>
+            </div>
+            <h3 style={{ fontFamily: "'DM Serif Display', serif", fontSize: "1.2rem", color: "var(--heading)", marginBottom: ".5rem" }}>
+              RNA Biosensor Classification
+            </h3>
+            <p style={{ fontSize: ".92rem", color: "var(--muted)", lineHeight: 1.7 }}>
+              Building ML pipelines for low-cost biosensors to classify RNA sequences for virus detection
+              in water samples. Achieving 95% accuracy using a Mixture-of-Experts architecture with
+              reproducible feature extraction.
+            </p>
+            <div style={{ display: "flex", gap: ".75rem", marginTop: ".75rem" }}>
+              {["/images/publication1.png", "/images/publication2.png"].map((src) => (
+                <img
+                  key={src}
+                  src={src}
+                  alt="Research poster"
+                  className="poster-thumb"
+                  onClick={() => setLightbox(src)}
+                />
+              ))}
+            </div>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: ".4rem", marginTop: ".75rem" }}>
+              {["PyTorch", "MoE", "Biosensors"].map((t) => <Tag key={t}>{t}</Tag>)}
+            </div>
+          </div>
+
+          {/* 4 — EHR / HTO */}
+          <div className="card">
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: ".5rem" }}>
+              <span style={{ fontSize: ".8rem", color: "var(--muted)", fontFamily: "'JetBrains Mono', monospace" }}>
+                SJSU · SKILLab 
+              </span>
+              <StatusBadge status="active" />
+            </div>
+            <h3 style={{ fontFamily: "'DM Serif Display', serif", fontSize: "1.2rem", color: "var(--heading)", marginBottom: ".5rem" }}>
+              EHR Sequence Modeling for Therapy Optimization
+            </h3>
+            <p style={{ fontSize: ".92rem", color: "var(--muted)", lineHeight: 1.7 }}>
+              Contributing to transformer-based models for predicting clinical outcomes from electronic
+              health records. Working on input sequence design across diagnoses, medications, labs,
+              and vitals using BERT-based architectures including MedBERT, BEHRT, and TransformEHR.
+            </p>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: ".4rem", marginTop: ".75rem" }}>
+              {["EHR", "Transformers", "Clinical ML"].map((t) => <Tag key={t}>{t}</Tag>)}
+            </div>
+          </div>
+
+          {/* 5 — Computational Analysis */}
+          <div className="card">
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: ".5rem" }}>
+              <span style={{ fontSize: ".8rem", color: "var(--muted)", fontFamily: "'JetBrains Mono', monospace" }}>
+                UCSD
+              </span>
+              <StatusBadge status="active" />
+            </div>
+            <h3 style={{ fontFamily: "'DM Serif Display', serif", fontSize: "1.2rem", color: "var(--heading)", marginBottom: ".5rem" }}>
+              Computational Analysis of Online Communities
+            </h3>
+            <p style={{ fontSize: ".92rem", color: "var(--muted)", lineHeight: 1.7 }}>
+              Analyzing large-scale social media data using topic modeling and sentiment analysis to
+              map community structures and value systems across online subcultures.
+            </p>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: ".4rem", marginTop: ".75rem" }}>
+              {["NLP", "Topic Modeling", "Social Computing"].map((t) => <Tag key={t}>{t}</Tag>)}
+            </div>
+          </div>
+
+          {/* 6 — CoT Thesis (Planned) */}
+          <div className="card" style={{ borderStyle: "dashed" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: ".5rem" }}>
+              <span style={{ fontSize: ".8rem", color: "var(--muted)", fontFamily: "'JetBrains Mono', monospace" }}>
+                SJSU 
+              </span>
+              <StatusBadge status="planned" />
+            </div>
+            <h3 style={{ fontFamily: "'DM Serif Display', serif", fontSize: "1.2rem", color: "var(--heading)", marginBottom: ".5rem" }}>
+              Constraint Vulnerability in Chain of Thought Reasoning
+            </h3>
+            <p style={{ fontSize: ".92rem", color: "var(--muted)", lineHeight: 1.7 }}>
+              Investigating how chain-of-thought reasoning affects instruction-following accuracy in LLMs,
+              with a focus on identifying which constraint types are most vulnerable.
+            </p>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: ".4rem", marginTop: ".75rem" }}>
+              {["LLMs", "Reasoning", "Evaluation"].map((t) => <Tag key={t}>{t}</Tag>)}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Experience ── */}
+      <section
+        id="experience"
+        className="reveal"
+        style={{
+          padding: "5rem 1.5rem",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          background: "var(--section-alt)",
+        }}
+      >
+        <h2 className="section-heading">Experience</h2>
+        <hr className="section-rule" />
+
+        <div style={{ width: "100%", maxWidth: 760, display: "flex", flexDirection: "column", gap: "1.25rem" }}>
           {[
             {
-              title: "Lead Ambassador",
-              org: "Mozilla RCC Responsible Computing Club at SJSU",
-              desc:
-                "Selected as Lead Ambassador in Mozilla’s global initiative promoting ethical technology and responsible AI.",
-              color: "#38bdf8",
-              icon: "🦊",
+              role: "AI/ML Fellow",
+              org: "Break Through Tech",
+              period: "Summer 2026",
+              desc: "Selected for a competitive, industry-aligned AI/ML fellowship. Program focuses on applied machine learning and project-based collaboration.",
+              tags: ["ML", "Fellowship", "Applied AI"],
+              badge: "incoming" as const,
             },
             {
-              title: "Technical Workshops Lead",
-              org: "Applied Engineering Organization at SJSU",
-              desc:
-                "Selected to organize and lead technical workshops on AI, GenAI, Python, and Java for peers and club members.",
-              color: "#fbbf24",
-              icon: "⚙️",
+              role: "Edge AI Intern",
+              org: "SiMa.ai × SJSU",
+              period: "Apr 2026 – Present",
+              desc: "Developing YOLO-based edge vision pipeline for real-time occupancy estimation across video streams.",
+              tags: ["YOLO", "Edge AI", "Computer Vision"],
             },
-          ].map((role, i) => (
-            <div
-              key={i}
-              style={{
-                background: "rgba(30,41,59,0.7)",
-                borderRadius: "12px",
-                padding: "2rem",
-                width: "350px",
-                textAlign: "center",
-                transition: "transform 0.3s ease, box-shadow 0.3s ease",
-                boxShadow: "0 5px 15px rgba(0,0,0,0.3)",
-              }}
-              onMouseEnter={(e) => {
-                (e.currentTarget as HTMLDivElement).style.transform =
-                  "translateY(-5px)";
-                (e.currentTarget as HTMLDivElement).style.boxShadow = `0 10px 25px ${role.color}60`;
-              }}
-              onMouseLeave={(e) => {
-                (e.currentTarget as HTMLDivElement).style.transform =
-                  "translateY(0)";
-                (e.currentTarget as HTMLDivElement).style.boxShadow =
-                  "0 5px 15px rgba(0,0,0,0.3)";
-              }}
-            >
-              <div style={{ fontSize: "2.5rem", marginBottom: "0.5rem" }}>
-                {role.icon}
+            {
+              role: "AI/ML Intern",
+              org: "EPA ESA × SJSU",
+              period: "Nov 2025 – Feb 2026",
+              desc: "Built an AI agent to validate and normalize 200+ county-level soil datasets. Automated compliance checks using rule-based and LLM-assisted evaluation, reducing manual effort by 70%.",
+              tags: ["Python", "LLMs", "MongoDB"],
+            },
+            {
+              role: "Research Intern",
+              org: "San José State University",
+              period: "Aug 2025 – Dec 2025",
+              desc: "Developed ML pipeline for low-cost biosensors, classifying 500+ RNA sequences with 95% accuracy using Mixture-of-Experts in PyTorch.",
+              tags: ["PyTorch", "ML Pipeline", "Biosensors"],
+            },
+            {
+              role: "Fellow",
+              org: "Paragon Policy Fellowship",
+              period: "Jan 2025 – Sep 2025",
+              desc: "Analyzed large public datasets using SQL to identify trends in AI governance and healthcare. Translated quantitative findings into actionable policy briefs.",
+              tags: ["Policy", "SQL", "AI Governance"],
+            },
+            {
+              role: "Fellow",
+              org: "AI4ALL",
+              period: "2024",
+              desc: "Built an accessibility tool simplifying complex text using FLAN-T5, reducing text length by 60–80% while preserving meaning.",
+              tags: ["NLP", "FLAN-T5", "Accessibility"],
+            },
+          ].map((exp, i) => (
+            <div key={i} className="card" style={{ display: "flex", gap: "1.25rem", alignItems: "flex-start" }}>
+              <div
+                style={{
+                  width: 4,
+                  minHeight: "100%",
+                  background: "var(--accent)",
+                  borderRadius: 2,
+                  flexShrink: 0,
+                }}
+              />
+              <div style={{ flex: 1 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: ".5rem", marginBottom: ".25rem" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: ".5rem" }}>
+                    <span style={{ fontWeight: 700, color: "var(--heading)" }}>
+                      {exp.role}
+                    </span>
+                    {exp.badge && <StatusBadge status={exp.badge} />}
+                  </div>
+                  <span style={{ fontSize: ".85rem", color: "var(--muted)", fontFamily: "'JetBrains Mono', monospace" }}>
+                    {exp.period}
+                  </span>
+                </div>
+                <p style={{ fontSize: ".9rem", color: "var(--accent)", fontWeight: 600, marginBottom: ".35rem" }}>
+                  {exp.org}
+                </p>
+                <p style={{ fontSize: ".92rem", color: "var(--muted)", lineHeight: 1.7, marginBottom: ".5rem" }}>
+                  {exp.desc}
+                </p>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: ".35rem" }}>
+                  {exp.tags.map((t) => <Tag key={t}>{t}</Tag>)}
+                </div>
               </div>
-              <h3 style={{ color: role.color, fontWeight: "bold", fontSize: "1.3rem" }}>
-                {role.title}
-              </h3>
-              <p style={{ fontWeight: "bold", marginBottom: "0.5rem" }}>{role.org}</p>
-              <p style={{ fontSize: "1rem", color: "#e2e8f0" }}>{role.desc}</p>
             </div>
           ))}
         </div>
       </section>
 
-      {/* ✉️ Contact Section */}
+      {/* ── Projects ── */}
+      <Projects />
+
+      {/* ── Leadership ── */}
       <section
-        id="contact"
+        className="reveal"
         style={{
-          minHeight: "50vh",
+          padding: "5rem 1.5rem",
           display: "flex",
           flexDirection: "column",
-          justifyContent: "center",
           alignItems: "center",
-          background: "rgba(15, 23, 42, 0.9)",
-          padding: "3rem 1rem",
-          borderTop: "1px solid #1e293b",
+          background: "var(--section-alt)",
         }}
       >
-        <h2
-          style={{
-            fontSize: "2.5rem",
-            marginBottom: "1rem",
-            color: "#38bdf8",
-            fontWeight: "bold",
-          }}
-        >
-          Let’s Connect
-        </h2>
-        <p style={{ fontSize: "1.2rem", marginBottom: "0.5rem", fontWeight: "bold" }}>
-  📧{" "}
-  <a
-    href="mailto:bhoomika.gupta@sjsu.edu"
-    style={{ color: "#93c5fd" }}
-  >
-    bhoomika.gupta@sjsu.edu
-  </a>
-</p>
-
-<p style={{ fontSize: "1.2rem", fontWeight: "bold" }}>
-  💼{" "}
-  <a
-    href="https://www.linkedin.com/in/bhoomikagupta44/"
-    target="_blank"
-    rel="noreferrer noopener"
-    style={{ color: "#93c5fd" }}
-  >
-    LinkedIn ↗
-  </a>
-</p>
-
-
+        <h2 className="section-heading">Leadership</h2>
+        <hr className="section-rule" />
+        <div style={{ display: "flex", flexWrap: "wrap", gap: "1.25rem", justifyContent: "center", maxWidth: 760 }}>
+          {[
+            {
+              title: "Lead Ambassador",
+              org: "Responsible Computing Club · SJSU",
+              desc: "Selected for a global initiative promoting ethical technology and responsible AI practices on campus.",
+            },
+            {
+              title: "Technical Workshops Lead",
+              org: "Applied Engineering Organization · SJSU",
+              desc: "Organized and led technical workshops on AI, GenAI, Python, and Java for peers and club members.",
+            },
+            {
+              title: "AI Officer",
+              org: "AI/ML Club · SJSU",
+              desc: "Managing and collaborating on AI projects across student teams at SJSU.",
+            },
+          ].map((r, i) => (
+            <div key={i} className="card" style={{ flex: "1 1 220px", maxWidth: 360 }}>
+              <h3 style={{ fontFamily: "'DM Serif Display', serif", fontSize: "1.1rem", color: "var(--heading)", marginBottom: ".25rem" }}>
+                {r.title}
+              </h3>
+              <p style={{ fontSize: ".85rem", color: "var(--accent)", fontWeight: 600, marginBottom: ".5rem" }}>
+                {r.org}
+              </p>
+              <p style={{ fontSize: ".9rem", color: "var(--muted)", lineHeight: 1.65 }}>
+                {r.desc}
+              </p>
+            </div>
+          ))}
+        </div>
       </section>
+
+      {/* ── Honors & Awards ── */}
+      <section
+        id="honors"
+        className="reveal"
+        style={{
+          padding: "5rem 1.5rem",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+        }}
+      >
+        <h2 className="section-heading">Honors &amp; Awards</h2>
+        <hr className="section-rule" />
+        <div style={{ width: "100%", maxWidth: 760, display: "flex", flexDirection: "column", gap: "1rem" }}>
+          {[
+            { title: "President's Scholar", org: "San José State University", detail: "4.0 GPA", year: "2025" },
+            { title: "President's Scholar", org: "San José State University", detail: "4.0 GPA", year: "2024" },
+          ].map((a, i) => (
+            <div key={i} className="card" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "1.25rem 1.75rem" }}>
+              <div>
+                <span style={{ fontWeight: 700, color: "var(--heading)" }}>{a.title}</span>
+                <span style={{ color: "var(--muted)", margin: "0 .5rem" }}>·</span>
+                <span style={{ color: "var(--muted)", fontSize: ".92rem" }}>{a.org}</span>
+                <span style={{ color: "var(--muted)", margin: "0 .5rem" }}>·</span>
+                <span style={{ fontSize: ".9rem", color: "var(--accent)", fontWeight: 600 }}>{a.detail}</span>
+              </div>
+              <span style={{ fontSize: ".85rem", color: "var(--muted)", fontFamily: "'JetBrains Mono', monospace" }}>
+                {a.year}
+              </span>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ── Contact ── */}
+      <section
+        id="contact"
+        className="reveal"
+        style={{
+          padding: "5rem 1.5rem",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          textAlign: "center",
+          background: "var(--section-alt)",
+        }}
+      >
+        <h2 className="section-heading">Let&apos;s Connect</h2>
+        <hr className="section-rule" style={{ margin: "0 auto 1.5rem" }} />
+        <p style={{ fontSize: "1rem", color: "var(--muted)", maxWidth: 480, lineHeight: 1.7, marginBottom: "1.5rem" }}>
+          Always on the lookout for opportunities to learn more and grow.
+        </p>
+        <div style={{ display: "flex", gap: "1.5rem", flexWrap: "wrap", justifyContent: "center" }}>
+          <a
+            href="mailto:bhoomika.gupta@sjsu.edu"
+            className="inline-link"
+            style={{ fontSize: "1.05rem" }}
+          >
+            bhoomika.gupta@sjsu.edu
+          </a>
+          <a
+            href="https://www.linkedin.com/in/bhoomikagupta44/"
+            target="_blank"
+            rel="noreferrer noopener"
+            className="inline-link"
+            style={{ fontSize: "1.05rem" }}
+          >
+            LinkedIn ↗
+          </a>
+        </div>
+      </section>
+
+      {/* ── Footer ── */}
+      <footer
+        style={{
+          padding: "2rem 1rem",
+          textAlign: "center",
+          fontSize: ".8rem",
+          color: "var(--muted)",
+          borderTop: "1px solid var(--card-border)",
+        }}
+      >
+        © 2026 Bhoomika Gupta
+      </footer>
     </main>
   );
 }
-

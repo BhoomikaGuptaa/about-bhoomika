@@ -1,173 +1,141 @@
 "use client";
 
-import { useMemo } from "react";
+function Tag({ children }: { children: string }) {
+  return (
+    <span
+      style={{
+        fontSize: ".78rem",
+        padding: "3px 10px",
+        borderRadius: 999,
+        background: "var(--tag-bg)",
+        color: "var(--tag-text)",
+        fontWeight: 500,
+      }}
+    >
+      {children}
+    </span>
+  );
+}
 
-// each project has its own emoji icon now
 const PROJECTS = [
   {
-    title: "MyMindHealth",
-    repo: "https://github.com/BhoomikaGuptaa/MyMindHealth",
-    live: "",
-    icon: "🧠", // mind emoji
+    title: "Price Drop Prediction System",
+    repo: "",
+    icon: "📉",
     blurb:
-      "A mental wellness app that tracks moods and provides insights using NLP and sentiment analysis. Designed to detect emotional patterns and improve user wellbeing through data-driven insights.",
-    tech: [
-      "Python",
-      "NLP",
-      "Sentiment Analysis",
-      "scikit-learn",
-      "SQL",
-      "AWS",
-      "PySpark",
-      "Data Engineering",
-      "Matplotlib",
-      "Seaborn",
-      "API Integration",
-    ],
+      "Predicts product price drops across 1,200 products using 8 years of monthly pricing data. Improved alert precision by 3× and increased AUC from 0.43 to 0.70 over fixed threshold baselines.",
+    tech: ["LightGBM", "FastAPI", "Python"],
   },
   {
-    title: "CaloriesBurntPredictor",
-    repo: "https://github.com/BhoomikaGuptaa/CaloriesBurntPredictor",
-    live: "",
-    icon: "🏃‍♀️", // running emoji
+    title: "Real-Time LLM Monitoring System",
+    repo: "",
+    icon: "🔍",
     blurb:
-      "A predictive model estimating calories burned during workouts using regression analysis, feature engineering, and real-world datasets. Includes scalable data pipeline and ML deployment practices.",
-    tech: [
-      "Python",
-      "Regression Models",
-      "scikit-learn",
-      "PySpark",
-      "SQL",
-      "AWS",
-      "Data Pipelines",
-      "Feature Engineering",
-      "Hadoop",
-      "Big Data Tools",
-    ],
+      "Streaming pipeline analyzing prompt–response events via Kafka. Handles 1K+ events/min with <200ms latency, flagging 15–20% of outputs for intervention.",
+    tech: ["Kafka", "Streamlit", "Docker"],
+  },
+  {
+    title: "AI Accessibility Assistant",
+    repo: "",
+    icon: "♿",
+    blurb:
+      "Text simplification tool using FLAN-T5 for readers at varying levels. Reduced text length by 60–80% while preserving meaning across 100+ passages.",
+    tech: ["FLAN-T5", "NLP", "TTS"],
+  },
+  {
+    title: "MyMindHealth",
+    repo: "",
+    icon: "🧠",
+    blurb:
+      "Mood tracking app using NLP and sentiment analysis to detect emotional patterns and surface data-driven insights.",
+    tech: ["NLP", "scikit-learn", "SQL"],
   },
 ];
 
 export default function Projects() {
-  const iconBadgeStyle = useMemo(
-    () =>
-      ({
-        width: 50,
-        height: 50,
-        borderRadius: "50%",
-        background: "rgba(56,189,248,.25)",
-        display: "grid",
-        placeItems: "center",
-        fontSize: "1.5rem",
-        flexShrink: 0,
-      }) as React.CSSProperties,
-    []
-  );
-
   return (
     <section
       id="projects"
+      className="reveal"
       style={{
-        minHeight: "70vh",
+        padding: "5rem 1.5rem",
         display: "flex",
         flexDirection: "column",
-        justifyContent: "center",
         alignItems: "center",
-        padding: "4rem 1rem",
-        borderTop: "1px solid #1e293b",
       }}
     >
       <h2
         style={{
-          fontSize: "2.5rem",
-          marginBottom: "1.25rem",
-          color: "#7dd3fc",
-          fontWeight: "bold",
-          textAlign: "center",
+          fontFamily: "'DM Serif Display', serif",
+          fontSize: "2.2rem",
+          color: "var(--heading)",
+          marginBottom: "0.5rem",
+          fontWeight: 400,
         }}
       >
         Projects
       </h2>
+      <hr
+        style={{
+          width: 48,
+          height: 3,
+          background: "var(--accent)",
+          border: "none",
+          margin: "0 0 2.5rem 0",
+          borderRadius: 2,
+        }}
+      />
 
       <div
         style={{
-          marginTop: "2rem",
           display: "grid",
-          gap: "1rem",
-          gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+          gap: "1.25rem",
+          gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
           width: "100%",
-          maxWidth: 1000,
+          maxWidth: 900,
         }}
       >
         {PROJECTS.map((p) => (
           <article
             key={p.title}
-            style={{
-              border: "1px solid #1e293b",
-              background: "rgba(30,41,59,0.55)",
-              borderRadius: 14,
-              padding: "1rem",
-              boxShadow: "0 10px 30px rgba(0,0,0,0.25)",
-              transition: "transform .25s ease, box-shadow .25s ease",
-            }}
-            onMouseEnter={(e) => {
-              (e.currentTarget as HTMLDivElement).style.transform = "translateY(-4px)";
-              (e.currentTarget as HTMLDivElement).style.boxShadow =
-                "0 16px 40px rgba(56,189,248,0.25)";
-            }}
-            onMouseLeave={(e) => {
-              (e.currentTarget as HTMLDivElement).style.transform = "translateY(0)";
-              (e.currentTarget as HTMLDivElement).style.boxShadow =
-                "0 10px 30px rgba(0,0,0,0.25)";
-            }}
+            className="card"
+            style={{ display: "flex", flexDirection: "column" }}
           >
-            {/* tiny icon + title */}
-            <div style={{ display: "flex", alignItems: "center", gap: ".6rem" }}>
-              <div aria-hidden style={iconBadgeStyle}>
-                {p.icon || "💡"}
-              </div>
-              <h3 style={{ margin: 0, color: "#93c5fd" }}>{p.title}</h3>
+            <div style={{ display: "flex", alignItems: "center", gap: ".6rem", marginBottom: ".5rem" }}>
+              <span style={{ fontSize: "1.4rem" }}>{p.icon}</span>
+              <h3
+                style={{
+                  margin: 0,
+                  fontFamily: "'DM Serif Display', serif",
+                  fontSize: "1.1rem",
+                  color: "var(--heading)",
+                }}
+              >
+                {p.title}
+              </h3>
             </div>
 
-            <p style={{ margin: "0.75rem 0 0.5rem", color: "#e2e8f0" }}>{p.blurb}</p>
+            <p style={{ fontSize: ".9rem", color: "var(--muted)", lineHeight: 1.7, flex: 1 }}>
+              {p.blurb}
+            </p>
 
-            <div style={{ display: "flex", gap: ".5rem", flexWrap: "wrap" }}>
+            <div style={{ display: "flex", gap: ".35rem", flexWrap: "wrap", marginTop: ".75rem" }}>
               {p.tech.map((t) => (
-                <span
-                  key={t}
-                  style={{
-                    fontSize: ".8rem",
-                    padding: ".25rem .5rem",
-                    borderRadius: 999,
-                    background: "#0f172a",
-                    border: "1px solid #1e293b",
-                    color: "#e5e7eb",
-                  }}
-                >
-                  {t}
-                </span>
+                <Tag key={t}>{t}</Tag>
               ))}
             </div>
 
-            <div style={{ marginTop: "0.75rem", display: "flex", gap: "1rem" }}>
+            {p.repo && (
               <a
                 href={p.repo}
                 target="_blank"
                 rel="noreferrer noopener"
-                style={{ color: "#38bdf8", fontWeight: 700 }}
+                className="inline-link"
+                style={{ marginTop: ".75rem", fontSize: ".9rem" }}
               >
                 GitHub ↗
               </a>
-              {p.live && (
-                <a
-                  href={p.live}
-                  target="_blank"
-                  rel="noreferrer noopener"
-                  style={{ color: "#a5b4fc", fontWeight: 700 }}
-                >
-                  Live Demo ↗
-                </a>
-              )}
-            </div>
+            )}
           </article>
         ))}
       </div>
