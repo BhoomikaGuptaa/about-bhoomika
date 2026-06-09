@@ -157,18 +157,6 @@ export default function Home() {
           padding: "6rem 1.5rem 3rem",
         }}
       >
-        <p
-          style={{
-            fontFamily: "'JetBrains Mono', monospace",
-            fontSize: ".85rem",
-            color: "var(--muted)",
-            letterSpacing: ".08em",
-            textTransform: "uppercase",
-            marginBottom: ".75rem",
-          }}
-        >
-          Data Science · LLM Systems · Model Evaluation · ML for Health
-        </p>
         <h1
           style={{
             fontFamily: "'DM Serif Display', serif",
@@ -193,9 +181,9 @@ export default function Home() {
           <Typewriter
             words={[
               "LLM evaluation & safety",
-              "Neuro-symbolic reasoning",
-              "Multi-agent systems",
-              "ML on clinical & biological data",
+              "AI agents",
+              "ML for health",
+              "Interpretable AI systems",
             ]}
             loop
             cursor
@@ -224,10 +212,9 @@ export default function Home() {
         <div style={{ maxWidth: 720, lineHeight: 1.85, fontSize: "1.05rem", color: "var(--foreground)" }}>
           <p style={{ marginBottom: "1.25rem" }}>
             Hi, I&apos;m Bhoomika, a Data Science undergraduate at San Jos&eacute; State University with a strong
-            interest in machine learning systems, large language models, and structured reasoning. I focus on
-            building and evaluating models on real-world data, with an emphasis on how these systems behave and
-            how to make them more reliable. My goal is to apply these skills to develop systems that are both
-            technically strong and useful in practice.
+            foundation in machine learning, large language models, and applied AI.  Some of my recent work focuses on LLM safety evaluation, reinforcement learning-based emotion prediction,
+            and machine learning for health and biological data. I&apos;m especially excited about making AI systems
+            safer, more interpretable, and useful in practice. I enjoy turning complex research ideas into systems that create real-world impact.
           </p>
           <div>
             <p style={{ fontWeight: 700, color: "var(--heading)", marginBottom: ".5rem", fontSize: ".95rem", letterSpacing: ".03em", textTransform: "uppercase" }}>
@@ -235,10 +222,10 @@ export default function Home() {
             </p>
             <div style={{ display: "flex", flexWrap: "wrap", gap: ".5rem" }}>
               {[
-                "LLM Systems & Evaluation",
-                "Neuro-Symbolic Methods",
-                "Multi-Agent Systems",
+                "LLM Safety & Evaluation",
+                "AI Agents",
                 "ML for Health & Biological Systems",
+                "Interpretability",
               ].map((t) => (
                 <Tag key={t}>{t}</Tag>
               ))}
@@ -271,17 +258,68 @@ export default function Home() {
             maxWidth: 900,
           }}
         >
-          {/* 1 — Neuro-Symbolic */}
+          {/* 1 — NTU Emotion Prediction */}
           <div className="card">
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: ".5rem" }}>
               <span style={{ fontSize: ".8rem", color: "var(--muted)", fontFamily: "'JetBrains Mono', monospace" }}>
-                UCSC · AIEA Lab
+                Nanyang Technological University
               </span>
               <StatusBadge status="active" />
             </div>
-            <h3 style={{ fontFamily: "'DM Serif Display', serif", fontSize: "1.2rem", color: "var(--heading)", marginBottom: ".5rem" }}>
+            <h3 style={{ fontFamily: "'DM Serif Display', serif", fontSize: "1.2rem", color: "var(--heading)", marginBottom: ".35rem" }}>
+              RL Framework for Emotion Prediction
+            </h3>
+            <p style={{ fontSize: ".82rem", color: "var(--accent)", fontWeight: 600, marginBottom: ".5rem" }}>
+              Advisor: Prof. Erik Cambria
+            </p>
+            <p style={{ fontSize: ".92rem", color: "var(--muted)", lineHeight: 1.7 }}>
+              Developing an agentic reinforcement learning framework to anticipate speaker emotions before
+              the next utterance using prior conversation history. Focusing on speaker-state memory,
+              cross-speaker affect signals, and reward design for more context-aware dialogue systems.
+            </p>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: ".4rem", marginTop: ".75rem" }}>
+              {["Reinforcement Learning", "Emotion Prediction", "Dialogue Systems"].map((t) => <Tag key={t}>{t}</Tag>)}
+            </div>
+          </div>
+
+          {/* 2 — USC Optimization */}
+          <div className="card">
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: ".5rem" }}>
+              <span style={{ fontSize: ".8rem", color: "var(--muted)", fontFamily: "'JetBrains Mono', monospace" }}>
+                University of Southern California
+              </span>
+              <StatusBadge status="active" />
+            </div>
+            <h3 style={{ fontFamily: "'DM Serif Display', serif", fontSize: "1.2rem", color: "var(--heading)", marginBottom: ".35rem" }}>
+              FastMap-Based Edge-Orientation Optimization
+            </h3>
+            <p style={{ fontSize: ".82rem", color: "var(--accent)", fontWeight: 600, marginBottom: ".5rem" }}>
+              Advisor: Prof. Satish Kumar Thittamaranahalli
+            </p>
+            <p style={{ fontSize: ".92rem", color: "var(--muted)", lineHeight: 1.7 }}>
+              Building a FastMap-based framework for edge-orientation optimization under asymmetric routing
+              demands. Modeling street and warehouse routing as a combinatorial optimization problem with
+              directed arcs and capacity constraints.
+            </p>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: ".4rem", marginTop: ".75rem" }}>
+              {["Optimization", "Graph Algorithms", "Routing"].map((t) => <Tag key={t}>{t}</Tag>)}
+            </div>
+          </div>
+
+          {/* 3 — Neuro-Symbolic */}
+          <div className="card">
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: ".5rem" }}>
+              <span style={{ fontSize: ".8rem", color: "var(--muted)", fontFamily: "'JetBrains Mono', monospace" }}>
+                University of California, Santa Cruz · AIEA Lab
+              </span>
+              <StatusBadge status="active" />
+            </div>
+            <h3 style={{ fontFamily: "'DM Serif Display', serif", fontSize: "1.2rem", color: "var(--heading)", marginBottom: ".35rem" }}>
               Neuro-Symbolic AI
             </h3>
+            <p style={{ fontSize: ".82rem", color: "var(--accent)", fontWeight: 600, marginBottom: ".5rem" }}>
+              Advisor: Prof. Leilani Gilpin
+            </p>
             <p style={{ fontSize: ".92rem", color: "var(--muted)", lineHeight: 1.7 }}>
               Developing systems that integrate large language models with symbolic structures to enable
               structured, verifiable reasoning. Focusing on architectures that combine neural language
@@ -292,41 +330,47 @@ export default function Home() {
             </div>
           </div>
 
-          {/* 2 — OpenGuard */}
+          {/* 4 — OpenGuard */}
           <div className="card">
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: ".5rem" }}>
               <span style={{ fontSize: ".8rem", color: "var(--muted)", fontFamily: "'JetBrains Mono', monospace" }}>
-                SJSU
+                San José State University
               </span>
               <StatusBadge status="active" />
             </div>
-            <h3 style={{ fontFamily: "'DM Serif Display', serif", fontSize: "1.2rem", color: "var(--heading)", marginBottom: ".5rem" }}>
-              OpenGuard: Policy Driven LLM Evaluation
+            <h3 style={{ fontFamily: "'DM Serif Display', serif", fontSize: "1.2rem", color: "var(--heading)", marginBottom: ".35rem" }}>
+              OpenGuard: Policy-Driven LLM Evaluation
             </h3>
+            <p style={{ fontSize: ".82rem", color: "var(--accent)", fontWeight: 600, marginBottom: ".5rem" }}>
+              Advisor: Pranoy Kovuri (AI Engineer at Apple)
+            </p>
             <p style={{ fontSize: ".92rem", color: "var(--muted)", lineHeight: 1.7 }}>
-              Designing evaluation workflows for LLM moderation. Building structured test suites
-              across attack types and analyzing failure modes including false positives, partial leaks, and
-              degradation under constraint across open-source guardrail models.
+              Building a policy-driven framework to evaluate LLM guardrails against runtime-defined moderation
+              rules. Designing structured test suites across attack types and analyzing failure modes such as
+              false positives, partial leaks, policy conflicts, and degradation under constraint.
             </p>
             <div style={{ display: "flex", flexWrap: "wrap", gap: ".4rem", marginTop: ".75rem" }}>
-              {["AI Safety", "Evaluation", "Guardrails"].map((t) => <Tag key={t}>{t}</Tag>)}
+              {["AI Safety", "LLM Evaluation", "Guardrails"].map((t) => <Tag key={t}>{t}</Tag>)}
             </div>
           </div>
 
-          {/* 3 — RNA Biosensors */}
+          {/* 5 — RNA Biosensors */}
           <div className="card">
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: ".5rem" }}>
               <span style={{ fontSize: ".8rem", color: "var(--muted)", fontFamily: "'JetBrains Mono', monospace" }}>
-                SJSU
+                San José State University
               </span>
               <div style={{ display: "flex", gap: ".4rem" }}>
                 <StatusBadge status="active" />
                 <StatusBadge status="posters" />
               </div>
             </div>
-            <h3 style={{ fontFamily: "'DM Serif Display', serif", fontSize: "1.2rem", color: "var(--heading)", marginBottom: ".5rem" }}>
+            <h3 style={{ fontFamily: "'DM Serif Display', serif", fontSize: "1.2rem", color: "var(--heading)", marginBottom: ".35rem" }}>
               RNA Biosensor Classification
             </h3>
+            <p style={{ fontSize: ".82rem", color: "var(--accent)", fontWeight: 600, marginBottom: ".5rem" }}>
+              Advisor: Dr. William Andreopoulos
+            </p>
             <p style={{ fontSize: ".92rem", color: "var(--muted)", lineHeight: 1.7 }}>
               Building ML pipelines for low-cost biosensors to classify RNA sequences for virus detection
               in water samples. Achieving 95% accuracy using a Mixture-of-Experts architecture with
@@ -348,38 +392,44 @@ export default function Home() {
             </div>
           </div>
 
-          {/* 4 — EHR / HTO */}
+          {/* 6 — EHR / HTR */}
           <div className="card">
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: ".5rem" }}>
               <span style={{ fontSize: ".8rem", color: "var(--muted)", fontFamily: "'JetBrains Mono', monospace" }}>
-                SJSU · SKILLab 
+                San José State University · SKILLab
               </span>
               <StatusBadge status="active" />
             </div>
-            <h3 style={{ fontFamily: "'DM Serif Display', serif", fontSize: "1.2rem", color: "var(--heading)", marginBottom: ".5rem" }}>
-              EHR Sequence Modeling for Therapy Optimization
+            <h3 style={{ fontFamily: "'DM Serif Display', serif", fontSize: "1.2rem", color: "var(--heading)", marginBottom: ".35rem" }}>
+              HTR-Former: Hypertension Therapy Response Prediction
             </h3>
+            <p style={{ fontSize: ".82rem", color: "var(--accent)", fontWeight: 600, marginBottom: ".5rem" }}>
+              Advisor: Prof. Jelena Gligorijevic
+            </p>
             <p style={{ fontSize: ".92rem", color: "var(--muted)", lineHeight: 1.7 }}>
-              Contributing to transformer-based models for predicting clinical outcomes from electronic
-              health records. Working on input sequence design across diagnoses, medications, labs,
-              and vitals using BERT-based architectures including MedBERT, BEHRT, and TransformEHR.
+              Building a time-aware transformer model to predict post-treatment blood pressure control from
+              longitudinal EHR data. The project focuses on modeling patient history across diagnoses,
+              medications, labs, and vitals to support therapy response prediction.
             </p>
             <div style={{ display: "flex", flexWrap: "wrap", gap: ".4rem", marginTop: ".75rem" }}>
               {["EHR", "Transformers", "Clinical ML"].map((t) => <Tag key={t}>{t}</Tag>)}
             </div>
           </div>
 
-          {/* 5 — Computational Analysis */}
+          {/* 7 — Computational Analysis */}
           <div className="card">
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: ".5rem" }}>
               <span style={{ fontSize: ".8rem", color: "var(--muted)", fontFamily: "'JetBrains Mono', monospace" }}>
-                UCSD
+                University of California, San Diego
               </span>
               <StatusBadge status="active" />
             </div>
-            <h3 style={{ fontFamily: "'DM Serif Display', serif", fontSize: "1.2rem", color: "var(--heading)", marginBottom: ".5rem" }}>
+            <h3 style={{ fontFamily: "'DM Serif Display', serif", fontSize: "1.2rem", color: "var(--heading)", marginBottom: ".35rem" }}>
               Computational Analysis of Online Communities
             </h3>
+            <p style={{ fontSize: ".82rem", color: "var(--accent)", fontWeight: 600, marginBottom: ".5rem" }}>
+              Advisor: Nazanin Sabri (PhD at UCSD)
+            </p>
             <p style={{ fontSize: ".92rem", color: "var(--muted)", lineHeight: 1.7 }}>
               Analyzing large-scale social media data using topic modeling and sentiment analysis to
               map community structures and value systems across online subcultures.
@@ -389,17 +439,20 @@ export default function Home() {
             </div>
           </div>
 
-          {/* 6 — CoT Thesis (Planned) */}
+          {/* 8 — CoT Thesis (Planned) */}
           <div className="card" style={{ borderStyle: "dashed" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: ".5rem" }}>
               <span style={{ fontSize: ".8rem", color: "var(--muted)", fontFamily: "'JetBrains Mono', monospace" }}>
-                SJSU 
+                San José State University · Bachelor Thesis
               </span>
               <StatusBadge status="planned" />
             </div>
-            <h3 style={{ fontFamily: "'DM Serif Display', serif", fontSize: "1.2rem", color: "var(--heading)", marginBottom: ".5rem" }}>
-              Constraint Vulnerability in Chain of Thought Reasoning
+            <h3 style={{ fontFamily: "'DM Serif Display', serif", fontSize: "1.2rem", color: "var(--heading)", marginBottom: ".35rem" }}>
+              Constraint Vulnerability in Chain-of-Thought Reasoning
             </h3>
+            <p style={{ fontSize: ".82rem", color: "var(--accent)", fontWeight: 600, marginBottom: ".5rem" }}>
+              Advisor: Dr. Teng Moh
+            </p>
             <p style={{ fontSize: ".92rem", color: "var(--muted)", lineHeight: 1.7 }}>
               Investigating how chain-of-thought reasoning affects instruction-following accuracy in LLMs,
               with a focus on identifying which constraint types are most vulnerable.
@@ -431,10 +484,16 @@ export default function Home() {
             {
               role: "AI/ML Fellow",
               org: "Break Through Tech",
-              period: "Summer 2026",
-              desc: "Selected for a competitive, industry-aligned AI/ML fellowship. Program focuses on applied machine learning and project-based collaboration.",
-              tags: ["ML", "Fellowship", "Applied AI"],
-              badge: "incoming" as const,
+              period: "Apr 2026 – Present",
+              desc: "Selected for a competitive, industry-aligned AI/ML fellowship focused on applied machine learning, technical mentorship, and project-based collaboration.",
+              tags: ["ML", "Fellowship", "Applied AI"]
+            },
+            {
+              role: "Software Engineering Intern",
+              org: "Software and Computer Engineering Society · SJSU",
+              period: "2026 – Present",
+              desc: "Building self-update and restart features for SCE's CI/CD system to improve deployment reliability across internal tools.",
+              tags: ["FastAPI", "CI/CD", "Python", "Docker", "DevOps"],
             },
             {
               role: "Edge AI Intern",
@@ -488,7 +547,6 @@ export default function Home() {
                     <span style={{ fontWeight: 700, color: "var(--heading)" }}>
                       {exp.role}
                     </span>
-                    {exp.badge && <StatusBadge status={exp.badge} />}
                   </div>
                   <span style={{ fontSize: ".85rem", color: "var(--muted)", fontFamily: "'JetBrains Mono', monospace" }}>
                     {exp.period}
